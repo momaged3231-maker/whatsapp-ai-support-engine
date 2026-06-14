@@ -1,0 +1,132 @@
+{
+  "name": "WAS · 07 Integration Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "n_1",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.WAS_DASHBOARD_INTERNAL_URL }}/api/businesses",
+        "options": {}
+      },
+      "id": "n_2",
+      "name": "List Businesses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const res = $input.first().json;\nconst arr = (res && res.data) || [];\nreturn arr.filter(b => b.is_active !== false).map(b => ({ json: { business_id: b.id } }));"
+      },
+      "id": "n_3",
+      "name": "Extract Business IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WAS_DASHBOARD_INTERNAL_URL }}/api/integration-sync",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ business_id: $json.business_id }) }}"
+      },
+      "id": "n_4",
+      "name": "WAS · 07 Integration Sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 7 — Integration Sync (every 6h)\nFor each active business, sync customers from active adapters (Google Sheets / CSV URL / SQL / Radius). Manual & No-DB modes are no-ops.",
+        "width": 940,
+        "height": 150,
+        "color": 4
+      },
+      "id": "n_5",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "List Businesses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Businesses": {
+      "main": [
+        [
+          {
+            "node": "Extract Business IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Business IDs": {
+      "main": [
+        [
+          {
+            "node": "WAS · 07 Integration Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "was-engine"
+  }
+}

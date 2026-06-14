@@ -1,0 +1,104 @@
+{
+  "name": "WAS · 03 Ticket Creation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ticket-create",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "n_2",
+      "name": "Create Ticket (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "wh_1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WAS_DASHBOARD_INTERNAL_URL }}/api/tickets",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body || $json) }}"
+      },
+      "id": "n_3",
+      "name": "Engine: Create Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "n_4",
+      "name": "Ticket",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 3 — Ticket Creation\nBody: { business_id, customer_id, ticket_type, issue_type, priority, summary, fields }.\nTicket code BUS-{business_id}-YYYYMMDD-0001 is generated in Postgres. A 'created' ticket_event is logged.",
+        "width": 620,
+        "height": 160,
+        "color": 4
+      },
+      "id": "n_5",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Create Ticket (POST)": {
+      "main": [
+        [
+          {
+            "node": "Engine: Create Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engine: Create Ticket": {
+      "main": [
+        [
+          {
+            "node": "Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "was-engine"
+  }
+}

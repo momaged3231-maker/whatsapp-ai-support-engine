@@ -1,0 +1,41 @@
+RAG usage guide for the WhatsApp AI Support Engine.
+
+This file documents how retrieved knowledge must be used. It is not sent to the
+model verbatim every turn; the reply_agent / classifier prompts reference these
+rules. Keep it here as the single source of truth for RAG behaviour.
+
+1. TENANT ISOLATION (non-negotiable)
+   - Every vector search MUST filter by business_id.
+   - A bot for business A must NEVER retrieve or use knowledge from business B.
+   - pgvector path: match_knowledge_chunks(business_id, query_embedding, k).
+   - Qdrant path:  filter { must: [ { key: "business_id", match: { value: <id> } } ] }.
+
+2. RETRIEVAL
+   - Embed the customer message (+ optionally the rolling memory) with the
+     configured embedding model.
+   - Retrieve top-k (default 5) chunks for THIS business, above a minimum
+     similarity (default 0.0; raise to ~0.2-0.3 to reduce noise).
+   - Pass retrieved chunks to the classifier and reply prompts as
+     RETRIEVED_KNOWLEDGE, each with: title, category, content.
+
+3. GROUNDING RULES (passed into reply_agent)
+   - Answer ONLY from RETRIEVED_KNOWLEDGE + BUSINESS_SETTINGS + SERVICES.
+   - If the answer is not supported by retrieved knowledge, do not invent it.
+     Either ask a clarifying question or say the team will confirm.
+   - Never reveal that knowledge came from a database or that RAG is used.
+
+4. CHUNKING (ingestion, workflow 02)
+   - Clean text (strip markup, collapse whitespace).
+   - Split into ~500-800 token chunks with ~80 token overlap. Short FAQ entries
+     can be a single chunk.
+   - Store each chunk with metadata: business_id, document_id, title, category,
+     source, chunk_index, created_at.
+
+5. EMBEDDING MODEL
+   - Controlled by AI_EMBEDDING_MODEL / AI_EMBEDDING_DIM in .env.
+   - The vector column dimension (schema.sql) MUST equal AI_EMBEDDING_DIM.
+   - If you change the model, re-embed all chunks (dimensions differ).
+
+6. CITATIONS
+   - Internally you may keep chunk ids for debugging, but the WhatsApp reply must
+     read naturally with no citations or source names.

@@ -1,0 +1,128 @@
+{
+  "name": "WAS · 01 WhatsApp Incoming",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-incoming",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "n_2",
+      "name": "WhatsApp Inbound (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "wh_1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract a normalized message from the Meta webhook payload.\nconst root = $input.first().json;\nconst body = root.body || root;\nfunction parse(b){\n  try{\n    const v = b.entry && b.entry[0] && b.entry[0].changes && b.entry[0].changes[0] && b.entry[0].changes[0].value;\n    const m = v && v.messages && v.messages[0];\n    if(!m) return null;\n    return {\n      phoneNumberId: v.metadata && v.metadata.phone_number_id,\n      from: m.from,\n      text: (m.text && m.text.body) || (m.button && m.button.text) || (m.interactive && ((m.interactive.list_reply||{}).title || (m.interactive.button_reply||{}).title)) || '',\n      messageId: m.id,\n      contactName: v.contacts && v.contacts[0] && v.contacts[0].profile && v.contacts[0].profile.name || null,\n    };\n  }catch(e){ return null; }\n}\nconst payload = parse(body);\nreturn [{ json: { payload, skip: !payload } }];"
+      },
+      "id": "n_3",
+      "name": "Normalize Inbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WAS_DASHBOARD_INTERNAL_URL }}/api/engine/process",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}"
+      },
+      "id": "n_4",
+      "name": "Engine: Process Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { received: true } }}",
+        "options": {}
+      },
+      "id": "n_5",
+      "name": "ACK 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 1 — WhatsApp Incoming\nWebhook → Normalize → Engine (/api/engine/process) → ACK.\n\nThe engine performs: identify business by phone_number_id → resolve customer → save inbound → memory → RAG → classify → reply → ticket → send WhatsApp → save outbound → update memory → notify support.\n\nPoint Meta's webhook at the DASHBOARD (/api/whatsapp) for GET verification (hub.challenge); use this workflow as an internal/alternative trigger.",
+        "width": 720,
+        "height": 200,
+        "color": 4
+      },
+      "id": "n_6",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "WhatsApp Inbound (POST)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Inbound": {
+      "main": [
+        [
+          {
+            "node": "Engine: Process Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engine: Process Message": {
+      "main": [
+        [
+          {
+            "node": "ACK 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "was-engine"
+  }
+}

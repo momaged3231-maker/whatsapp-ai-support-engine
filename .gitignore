@@ -1,0 +1,30 @@
+# env / secrets
+.env
+*.local
+
+# logs / run artifacts
+*.log
+run.log
+git_info.log
+
+# local helper scripts (not part of the project)
+probe_git.bat
+prepare_git.bat
+push_git.bat
+
+# node
+node_modules/
+.next/
+dist/
+build/
+npm-debug.log*
+
+# certs
+nginx/certs/*.pem
+
+# os
+.DS_Store
+Thumbs.db
+
+# uploads (runtime)
+dashboard/uploads/

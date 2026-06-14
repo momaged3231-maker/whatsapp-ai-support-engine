@@ -1,0 +1,104 @@
+{
+  "name": "WAS · 04 Support Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-notify",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "n_2",
+      "name": "Notify (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "wh_1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WAS_DASHBOARD_INTERNAL_URL }}/api/notify",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body || $json) }}"
+      },
+      "id": "n_3",
+      "name": "Engine: Notify Support",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "n_4",
+      "name": "Notified",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 4 — Support Notification\nBody: { business_id, ticket_id }.\nSends the ticket report to active support members on WhatsApp (area-aware), logs a 'notified' event. Telegram/email are optional later; dashboard always reflects it.",
+        "width": 620,
+        "height": 170,
+        "color": 4
+      },
+      "id": "n_5",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Notify (POST)": {
+      "main": [
+        [
+          {
+            "node": "Engine: Notify Support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engine: Notify Support": {
+      "main": [
+        [
+          {
+            "node": "Notified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "was-engine"
+  }
+}
