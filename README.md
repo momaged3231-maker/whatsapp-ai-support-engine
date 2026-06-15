@@ -1,5 +1,17 @@
 # WhatsApp AI Support Engine
 
+![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791?logo=postgresql&logoColor=white)
+![Qdrant](https://img.shields.io/badge/Vector-pgvector%20%7C%20Qdrant-dc2626)
+![n8n](https://img.shields.io/badge/Automation-n8n-EA4B71?logo=n8n&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)
+![Multi-tenant](https://img.shields.io/badge/Multi--tenant-ready-4c8dff)
+
+> **Live demo:** _deploying…_ (the public URL will be added here once Vercel finishes)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmomaged3231-maker%2Fwhatsapp-ai-support-engine&root-directory=dashboard&env=DATABASE_URL,DB_SCHEMA,PGSSL&envDescription=Supabase%20session-pooler%20URI%20%2B%20DB_SCHEMA%3Dwas%20%2B%20PGSSL%3Drequire)
+
 A **white-label, multi-business** WhatsApp support engine: an AI bot that replies
 to customers, retrieves business knowledge with **RAG**, keeps **per-customer
 memory**, opens **tickets**, notifies **support staff**, and exposes a full
@@ -84,6 +96,28 @@ opens a ticket, and notifies support — all in demo mode.
 > Without an AI key the engine still works via a heuristic classifier + lexical
 > knowledge search, so the first demo runs offline. Add an AI key for full
 > RAG + LLM replies.
+
+---
+
+## Deploy live (Vercel + Supabase)
+
+The Next.js app lives in `dashboard/` and can run serverless on Vercel against a
+managed Postgres (e.g. Supabase). Click the **Deploy with Vercel** button above,
+or:
+
+1. Import this repo in Vercel and set **Root Directory = `dashboard`**.
+2. Add environment variables:
+   - `DATABASE_URL` = your Postgres **session-pooler / direct** URI (not the
+     transaction pooler, so `SET search_path` persists).
+   - `DB_SCHEMA` = `was` (if your engine tables live in an isolated schema; this
+     repo's Supabase setup uses `was`). Omit for a fresh public-schema DB.
+   - `PGSSL` = `require` (managed Postgres needs SSL; auto-detected for Supabase).
+   - `AI_API_KEY` = optional. Empty → offline heuristic + lexical search; set a
+     key (OpenAI-compatible) for full RAG + LLM replies.
+3. Deploy. The seeded demo businesses appear immediately.
+
+> Cloud deployments can't reach a **local** Ollama (`localhost`). For smart
+> replies on a hosted URL, use a cloud/OpenAI-compatible `AI_BASE_URL` + key.
 
 ---
 
