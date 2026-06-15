@@ -1,34 +1,39 @@
 // Postgres connection pool + tiny query helper.
-// Works with:
-//   - local Docker Postgres (public schema)              -> no extra env
-//   - managed Postgres / Supabase with an isolated schema -> DB_SCHEMA=was, PGSSL=require
+// Connection string resolution (first match wins):
+//   DATABASE_URL  ->  POSTGRES_URL  ->  POSTGRES_PRISMA_URL  ->  DATABASE_URL_UNPOOLED
+// so it works with local Docker, Supabase, AND Vercel Postgres / Neon
+// (which auto-inject POSTGRES_URL / DATABASE_URL).
 import { Pool } from 'pg';
 
 const globalForPg = globalThis;
 
-// SSL: required by Supabase / most managed Postgres. Auto-on for *.supabase.com.
+const CONN =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.DATABASE_URL_UNPOOLED ||
+  '';
+
+// SSL: managed Postgres (Supabase/Neon/etc.) needs SSL. On for any remote host.
 function makeSsl() {
-  const url = process.env.DATABASE_URL || '';
   if (process.env.PGSSL === 'disable') return false;
-  if (process.env.PGSSL === 'require' || /supabase\.(co|com)|sslmode=require/.test(url)) {
-    return { rejectUnauthorized: false };
-  }
-  return false;
+  if (process.env.PGSSL === 'require') return { rejectUnauthorized: false };
+  if (/@(localhost|127\.0\.0\.1|db|postgres)[:/]/.test(CONN)) return false; // local docker
+  if (!CONN) return false;
+  return { rejectUnauthorized: false }; // remote managed Postgres
 }
 
-// Optional dedicated schema (e.g. Supabase "was"). Sanitized to a plain identifier.
+// Optional dedicated schema (e.g. Supabase "was"). Empty => default public schema.
 const RAW_SCHEMA = process.env.DB_SCHEMA || '';
 const SCHEMA = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(RAW_SCHEMA) ? RAW_SCHEMA : '';
 
 function buildPool() {
   const p = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: CONN,
     max: parseInt(process.env.DB_POOL_MAX || '5', 10),
     idleTimeoutMillis: 30000,
     ssl: makeSsl(),
   });
-  // Set search_path on every new physical connection (session-level).
-  // Use a session/direct connection string (not the transaction pooler) so this persists.
   if (SCHEMA) {
     p.on('connect', (client) => {
       client.query(`SET search_path TO "${SCHEMA}", public, extensions`).catch((e) =>
@@ -48,7 +53,6 @@ export async function query(text, params) {
   return res;
 }
 
-// Return first row or null.
 export async function one(text, params) {
   const { rows } = await pool.query(text, params);
   return rows[0] || null;
