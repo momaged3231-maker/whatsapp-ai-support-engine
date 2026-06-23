@@ -47,7 +47,7 @@ export default async function CustomerDetailPage({
         description={customer.phone}
         action={
           admin ? (
-            <DeleteButton action={async () => deleteCustomer(id)} confirmText="حذف العميل وكل بياناته المرتبطة؟" />
+            <DeleteButton action={deleteCustomer.bind(null, id)} confirmText="حذف العميل وكل بياناته المرتبطة؟" />
           ) : undefined
         }
       />

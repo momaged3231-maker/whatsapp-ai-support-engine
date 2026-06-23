@@ -65,7 +65,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               </Button>
             </Link>
             {admin && (
-              <DeleteButton action={async () => deleteOrder(id)} confirmText="حذف هذا الطلب؟" />
+              <DeleteButton action={deleteOrder.bind(null, id)} confirmText="حذف هذا الطلب؟" />
             )}
           </div>
         }

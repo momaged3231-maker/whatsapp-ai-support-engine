@@ -42,7 +42,7 @@ export default async function PrintJobDetailPage({ params }: { params: Promise<{
                 <Printer size={14} /> طباعة إيصال
               </Button>
             </Link>
-            {admin && <DeleteButton action={async () => deletePrintJob(id)} confirmText="حذف هذا الطلب؟" />}
+            {admin && <DeleteButton action={deletePrintJob.bind(null, id)} confirmText="حذف هذا الطلب؟" />}
           </div>
         }
       />
