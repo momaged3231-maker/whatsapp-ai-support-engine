@@ -108,7 +108,7 @@ export default async function BusinessCarePage() {
               statusAction={updateSubscriptionStatus}
               visitsAction={incrementUsedVisit}
               renewAction={renewSubscription}
-              deleteAction={async () => deleteSubscription(s.id)}
+              deleteAction={deleteSubscription.bind(null, s.id)}
             />
           ))}
           {!subs?.length && (

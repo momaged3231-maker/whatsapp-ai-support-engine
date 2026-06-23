@@ -4,6 +4,10 @@
 
 تطبيق ويب عربي (RTL) كامل لإدارة العملاء، طلبات الصيانة، أعمال الطباعة، المخزون، المبيعات، المصاريف، اشتراكات الدعم الشهري للمحلات، المتابعات، والتقارير المالية — مع طباعة إيصالات وفواتير، وروابط واتساب جاهزة بالرسائل العربية.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmomaged3231-maker%2Fwhatsapp-ai-support-engine&root-directory=mego-os&project-name=mego-os&repository-name=mego-os)
+
+اضغط الزر فوق — Vercel هيستورد المستودع، يحدّد مجلد `mego-os` تلقائيًا، ويعمل Deploy بدون أي إعداد إضافي (بيانات الاتصال بـ Supabase مدمجة في الكود بشكل آمن لو لم تُضِف متغيرات بيئة خاصة بك).
+
 ## المميزات المكتملة
 
 - تسجيل دخول وحماية صفحات عبر Supabase Auth، بأدوار Admin/Staff.

@@ -122,7 +122,7 @@ export default async function ExpensesPage({
               <Td>{formatDate(e.expense_date)}</Td>
               {admin && (
                 <Td>
-                  <DeleteButton action={async () => deleteExpense(e.id)} confirmText="حذف هذا المصروف؟" />
+                  <DeleteButton action={deleteExpense.bind(null, e.id)} confirmText="حذف هذا المصروف؟" />
                 </Td>
               )}
             </Tr>
