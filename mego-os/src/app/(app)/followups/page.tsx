@@ -97,7 +97,7 @@ export default async function FollowupsPage({
                 orderNo={f.order_id ? orderMap.get(f.order_id) ?? null : null}
                 isAdmin={admin}
                 statusAction={updateFollowupStatus}
-                deleteAction={async () => deleteFollowup(f.id)}
+                deleteAction={deleteFollowup.bind(null, f.id)}
               />
             );
           })}

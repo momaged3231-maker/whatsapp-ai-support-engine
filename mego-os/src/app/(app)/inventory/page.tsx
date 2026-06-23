@@ -89,7 +89,7 @@ export default async function InventoryPage({
               item={item}
               isAdmin={admin}
               updateAction={updateInventoryItem.bind(null, item.id)}
-              deleteAction={async () => deleteInventoryItem(item.id)}
+              deleteAction={deleteInventoryItem.bind(null, item.id)}
             />
           ))}
           {!items?.length && (

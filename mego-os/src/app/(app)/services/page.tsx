@@ -74,7 +74,7 @@ export default async function ServicesPage() {
               isAdmin={admin}
               updateAction={updateService.bind(null, s.id)}
               toggleAction={toggleServiceActive}
-              deleteAction={async () => deleteService(s.id)}
+              deleteAction={deleteService.bind(null, s.id)}
             />
           ))}
         </Tbody>
