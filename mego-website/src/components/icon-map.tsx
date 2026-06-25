@@ -1,0 +1,30 @@
+import {
+  Laptop,
+  Smartphone,
+  Satellite,
+  Camera,
+  Wifi,
+  Printer,
+  GraduationCap,
+  Store,
+  Megaphone,
+  Globe,
+  Signpost,
+  Cable,
+  type LucideIcon,
+} from "lucide-react";
+
+export const ICON_MAP: Record<string, LucideIcon> = {
+  Laptop,
+  Smartphone,
+  Satellite,
+  Camera,
+  Wifi,
+  Printer,
+  GraduationCap,
+  Store,
+  Megaphone,
+  Globe,
+  Signpost,
+  Cable,
+};
