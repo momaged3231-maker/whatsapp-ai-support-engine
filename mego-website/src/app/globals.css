@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --mego-navy: #0d1b2a;
+  --mego-navy-light: #142b40;
+  --mego-blue: #0077ff;
+  --mego-cyan: #00b4d8;
+  --mego-yellow: #facc15;
+}
+
+@theme inline {
+  --font-sans: var(--font-cairo);
+  --color-mego-navy: var(--mego-navy);
+  --color-mego-navy-light: var(--mego-navy-light);
+  --color-mego-blue: var(--mego-blue);
+  --color-mego-cyan: var(--mego-cyan);
+  --color-mego-yellow: var(--mego-yellow);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--mego-navy);
+}
+
+.gradient-text {
+  background-image: linear-gradient(90deg, var(--mego-cyan), var(--mego-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-padding {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: white;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input:focus {
+  border-color: var(--mego-cyan);
+}
+
+.input option {
+  color: black;
+}
